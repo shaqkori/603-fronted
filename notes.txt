@@ -1,0 +1,81 @@
+                   ┌─────────────┐
+                   │   Cognito   │
+                   └─────────────┘
+                         ▲
+Authentication            │ JWT Tokens
+                         ▼
+React Native ───────► API Gateway
+                         │
+                         │ api endpoint
+                         ▼
+                  ┌─────────────┐
+                  │  Internal   │
+                  │     ALB     │
+                  └─────────────┘
+                         │
+                         ▼
+                  ┌─────────────┐
+                  │ ECS Fargate │
+                  │  (Node.js)  │
+                  └─────────────┘
+                         │
+                         ▼
+                  ┌─────────────┐
+                  │  Database   │
+                  └─────────────┘
+        
+
+React Native → API Gateway → VPC Endpoint → ECS Containers → Database
+      ↑                                          |
+      └──────────────────────────────────────────┘
+           Response data flows back this way
+
+
+backend(running on ECS): 
+
+The backend receives the request, validates the JWT token, queries the RDS database, and sends a response.
+
+authenticates users 
+
+manage user data (CRUD functionality)
+
+exposes rest API endpoints 
+
+processes business logic 
+
+fetchs and processes and returns data 
+
+
+
+user logs in -> credntials sent to cognito -> authentcates then sends token ->  validates token -> then returns request -> executes backend logic -> returns json 
+
+
+api endpoints 
+- /signin
+- /logout
+- /profile
+- /home 
+
+- /transactions 
+- /transactions/{id}
+- /addTransaction
+- /updateTransaction
+- /deleteTransaction
+
+- /analysis 
+- /analysis-calendar
+
+- /budgets
+- /addBuget
+- /updateBudget
+- /deleteBudget
+
+- /savings 
+- /addSavings
+- /updateSvaings
+- /deleteSavings
+
+- /categories
+
+
+https://commerce.nearform.com/open-source/victory-native/docs/cartesian/bar/bar-group
