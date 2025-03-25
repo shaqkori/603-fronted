@@ -82,3 +82,98 @@ https://commerce.nearform.com/open-source/victory-native/docs/cartesian/bar/bar-
 
 
 - lesson create gitignore file before creating repo (causes a bunch of issues)
+
+
+const db = require("../db"); // Import your database connection or ORM
+
+const placeholderTransactions = [
+  {
+    id: 1,
+    description: "Grocery Store",
+    amount: 50.25,
+    date: "2024-03-01",
+    category: "Groceries",
+  },
+  {
+    id: 2,
+    description: "Netflix",
+    amount: 15.99,
+    date: "2024-03-02",
+    category: "Subscription",
+  },
+  {
+    id: 3,
+    description: "Gas Station",
+    amount: 40.0,
+    date: "2024-03-03",
+    category: "Transportation",
+  },
+  {
+    id: 4,
+    description: "Coffee",
+    amount: 5.5,
+    date: "2024-03-04",
+    category: "Food & Drink",
+  },
+];
+
+// Fetch all transactions
+const getTransactions = async (req, res) => {
+  try {
+    const transactions = await db.query("SELECT * FROM transactions"); // Replace with your DB query
+    if (transactions.length === 0) {
+      console.log("No transactions found in the database. Returning placeholder data.");
+      return res.json(placeholderTransactions);
+    }
+    res.json(transactions);
+  } catch (error) {
+    console.error("Error fetching transactions from the database:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Fetch a transaction by ID
+const getTransactionById = async (req, res) => {
+  const transactionId = parseInt(req.params.id);
+  try {
+    const [transaction] = await db.query("SELECT * FROM transactions WHERE id = ?", [transactionId]); // Replace with your DB query
+    if (!transaction) {
+      console.log(`Transaction with ID: ${transactionId} not found in the database. Returning placeholder data.`);
+      const placeholderTransaction = placeholderTransactions.find((t) => t.id === transactionId);
+      if (!placeholderTransaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+      return res.json(placeholderTransaction);
+    }
+    res.json(transaction);
+  } catch (error) {
+    console.error("Error fetching transaction from the database:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Create a new transaction
+const createTransaction = async (req, res) => {
+  const { description, amount, date, category } = req.body;
+  if (!description || !amount || !date || !category) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  try {
+    const result = await db.query(
+      "INSERT INTO transactions (description, amount, date, category) VALUES (?, ?, ?, ?)",
+      [description, amount, date, category]
+    ); // Replace with your DB query
+    const newTransaction = {
+      id: result.insertId, // Assuming `insertId` is returned by your DB driver
+      description,
+      amount,
+      date,
+      category,
+    };
+    res.status(201).json(newTransaction);
+  } catch (error) {
+    console.error("Error creating transaction in the database:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

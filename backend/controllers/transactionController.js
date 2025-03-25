@@ -1,3 +1,5 @@
+const { categories } = require("../controllers/categoryController");
+
 const transactions = [
   {
     id: 1,
@@ -48,16 +50,26 @@ const getTransactionById = (req, res) => {
 };
 
 const createTransaction = (req, res) => {
+  console.log("Categories:", categories); // Debugging log
+
   const { description, amount, date, category } = req.body;
-  if (!description || !amount || !date || !category) {
-    return res.status(400).json({ message: "All fields are requireed" });
+
+  const isValidCategory = categories.some((c) => c.name === category);
+  console.log("Is valid category:", isValidCategory); // Debugging log
+
+  if (!isValidCategory) {
+    return res.status(400).json({
+      message: `Invalid category. Choose from: ${categories
+        .map((c) => c.name)
+        .join(", ")}`,
+    });
   }
 
   const newTransaction = {
     id: transactions.length + 1,
     description,
     amount,
-    date: new Date().toISOString().split("T")[0],
+    date: date || new Date().toISOString().split("T")[0],
     category,
   };
 

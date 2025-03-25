@@ -5,6 +5,7 @@ const app = express();
 app.use(express.json()); // Middleware to parse JSON
 
 app.use("/transactions", transactionRoutes);
+app.use("/categories", require("./routes/categoryRoute"));
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));
