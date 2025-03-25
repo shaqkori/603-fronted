@@ -1,0 +1,46 @@
+-- Users table
+CREATE TABLE users (
+  id VARCHAR(36) PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Categories table for custom categories
+CREATE TABLE categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(36) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  icon VARCHAR(50),
+  is_income BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_category (user_id, name)
+);
+
+-- Transactions table
+CREATE TABLE transactions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(36) NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  category VARCHAR(100) NOT NULL,
+  transaction_date DATE NOT NULL,
+  description TEXT,
+  is_income BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Budgets table
+CREATE TABLE budgets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(36) NOT NULL,
+  category VARCHAR(100) NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  period ENUM('daily', 'weekly', 'monthly', 'annual') DEFAULT 'monthly',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

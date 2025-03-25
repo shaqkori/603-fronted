@@ -1,2 +1,3 @@
-# 603-fronted
-frontend application of level 6 project 
+# 603-frontend
+
+frontend application of level 6 project

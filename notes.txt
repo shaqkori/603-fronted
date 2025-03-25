@@ -79,3 +79,6 @@ api endpoints
 
 
 https://commerce.nearform.com/open-source/victory-native/docs/cartesian/bar/bar-group
+
+
+- lesson create gitignore file before creating repo (causes a bunch of issues)
