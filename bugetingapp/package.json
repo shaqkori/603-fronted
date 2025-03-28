@@ -17,8 +17,11 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
-    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/native": "^7.0.19",
+    "@react-navigation/native-stack": "^7.3.3",
+    "@tanstack/react-query": "^4.36.1",
     "aws-sdk": "^2.1692.0",
+    "axios": "^1.8.4",
     "expo": "~52.0.38",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.8",
@@ -43,6 +46,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@tanstack/eslint-plugin-query": "^4.38.0",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",
