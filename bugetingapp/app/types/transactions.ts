@@ -4,4 +4,6 @@ export type Transaction = {
     amount: number;
     date: string;
     category: string;
-}   
+    type: "income" | "expense";
+
+};

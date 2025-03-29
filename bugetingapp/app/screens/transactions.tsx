@@ -1,32 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, Button, TextInput, StyleSheet, TouchableOpacity } from "react-native";
-import { Transaction } from "../types/transactions"; 
+import { Transaction } from "../types/transactions";
+import TransactionList from "../components/transactionList"; // Updated import
+import { BASE_URL } from "../src/config";
 
-import { BASE_URL } from "../src/config"; // Importing base URL from the config file
-
-const API_URL = `${BASE_URL}/transactions`; // Setting the URL for the transactions
-const CATEGORIES_URL = `${BASE_URL}/categories`; // Setting the URL for the categories
+const API_URL = `${BASE_URL}/transactions`;
+const CATEGORIES_URL = `${BASE_URL}/categories`;
 
 const TransactionsScreen = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<{ id: number; name: string } | null>(null); // To store selected category
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]); // To store categories fetched from the backend
+  const [selectedCategory, setSelectedCategory] = useState<{ id: number; name: string } | null>(null);
+  const [type, setType] = useState<"income" | "expense">("expense"); // Default to expense
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
 
-  // Fetch Categories from the backend
   const fetchCategories = async () => {
     try {
       const response = await fetch(CATEGORIES_URL);
       if (!response.ok) throw new Error("Failed to fetch categories");
       const data = await response.json();
-      setCategories(data); // Set the categories to the state
+      setCategories(data);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
   };
 
-  // Fetch Transactions from the backend
   const fetchTransactions = async () => {
     try {
       const response = await fetch(API_URL);
@@ -38,15 +37,15 @@ const TransactionsScreen = () => {
     }
   };
 
-  // Add a new transaction
   const handleAddTransaction = async () => {
-    if (!description || !amount || !selectedCategory) return;
+    if (!description || !amount || !selectedCategory || !type) return;
 
     const newTransaction = {
       description,
       amount: parseFloat(amount),
-      date: new Date().toISOString().split("T")[0], // Get the current date
-      category: selectedCategory.name, // Use the selected category name
+      type,
+      date: new Date().toISOString().split("T")[0],
+      category: selectedCategory.name,
     };
 
     try {
@@ -59,34 +58,33 @@ const TransactionsScreen = () => {
       if (response.ok) {
         setDescription("");
         setAmount("");
-        setSelectedCategory(null); // Clear category selection
-        fetchTransactions(); // Refresh the transactions list
+        setSelectedCategory(null);
+        setType("expense"); // Reset to default
+        fetchTransactions();
       }
     } catch (error) {
       console.error("Error adding transaction:", error);
     }
   };
 
-  // Delete a transaction
   const handleDeleteTransaction = async (id: number) => {
     try {
       const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      if (response.ok) fetchTransactions(); // Refresh the transactions list
+      if (response.ok) fetchTransactions();
     } catch (error) {
       console.error("Error deleting transaction:", error);
     }
   };
 
   useEffect(() => {
-    fetchCategories(); // Fetch categories when the component mounts
-    fetchTransactions(); // Fetch transactions when the component mounts
+    fetchCategories();
+    fetchTransactions();
   }, []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Transactions</Text>
 
-      {/* Form to Add Transactions */}
       <TextInput 
         style={styles.input} 
         placeholder="Description" 
@@ -94,7 +92,6 @@ const TransactionsScreen = () => {
         onChangeText={setDescription} 
       />
       
-      {/* Category Selection */}
       <Text style={styles.categoryTitle}>Select Category</Text>
       <FlatList
         data={categories}
@@ -120,19 +117,26 @@ const TransactionsScreen = () => {
         onChangeText={setAmount} 
         keyboardType="numeric" 
       />
+
+      <View style={styles.typeSelector}>
+        <TouchableOpacity
+          style={[styles.typeButton, type === "income" && styles.selectedType]}
+          onPress={() => setType("income")}
+        >
+          <Text style={styles.typeText}>Income</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.typeButton, type === "expense" && styles.selectedType]}
+          onPress={() => setType("expense")}
+        >
+          <Text style={styles.typeText}>Expense</Text>
+        </TouchableOpacity>
+      </View>
+
       <Button title="Add Transaction" onPress={handleAddTransaction} />
 
-      {/* Transaction List */}
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item.id?.toString() ?? Math.random().toString()}
-        renderItem={({ item }) => (
-          <View style={styles.transaction}>
-            <Text>{item.description} - £{item.amount.toFixed(2)} ({item.category})</Text>
-            <Button title="Delete" onPress={() => handleDeleteTransaction(item.id)} />
-          </View>
-        )}
-      />
+      {/* Pass transactions to TransactionList */}
+      <TransactionList transactions={transactions} onDeleteTransaction={handleDeleteTransaction} />
     </View>
   );
 };
@@ -154,7 +158,22 @@ const styles = StyleSheet.create({
   categoryText: {
     color: "#fff",
   },
-  transaction: { flexDirection: "row", justifyContent: "space-between", padding: 10, borderBottomWidth: 1 },
+  typeSelector: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 10,
+  },
+  typeButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  selectedType: {
+    backgroundColor: "#4caf50",
+  },
+  typeText: {
+    fontWeight: "bold",
+  },
 });
 
 export default TransactionsScreen;

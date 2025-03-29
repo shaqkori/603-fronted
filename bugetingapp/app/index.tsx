@@ -2,22 +2,35 @@ import { Text, View, SafeAreaView} from "react-native";
 import React, { useState } from 'react';
 import Home from './screens/home'
 import Transactions from "./screens/transactions";
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+import Categories from "./screens/categories";
+import  SavingsScreen  from "./screens/savings";
+import BottomNav from "./components/navigation";
 
 
-const queryClient = new QueryClient()
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+
+
+
 
 export default function Index() {
 
   
   return (
-    <QueryClientProvider client={queryClient}> {/* allows entire app to be accesible by react query */}
-      <SafeAreaView>
-        <Transactions/>
+   
+      
+        
+        
+          <BottomNav />
+        
+        
+        
+        
 
-      </SafeAreaView>
+      
+      
 
-    </QueryClientProvider>
+
 
   );
 }

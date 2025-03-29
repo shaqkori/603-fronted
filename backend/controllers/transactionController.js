@@ -7,6 +7,7 @@ const transactions = [
     amount: 50.25,
     date: "2024-03-01",
     category: "Groceries",
+    type: "expense",
   },
   {
     id: 2,
@@ -14,20 +15,23 @@ const transactions = [
     amount: 15.99,
     date: "2024-03-02",
     category: "Subscription",
+    type: "expense",
   },
   {
     id: 3,
+    description: "Freelance Payment",
+    amount: 500.0,
+    date: "2024-03-03",
+    category: "Income",
+    type: "income",
+  },
+  {
+    id: 4,
     description: "Gas Station",
     amount: 40.0,
     date: "2024-03-03",
     category: "Transportation",
-  },
-  {
-    id: 4,
-    description: "Coffee",
-    amount: 5.5,
-    date: "2024-03-04",
-    category: "Food & Drink",
+    type: "expense",
   },
 ];
 
@@ -36,13 +40,12 @@ const getTransactions = (req, res) => {
 };
 
 const getTransactionById = (req, res) => {
-  const transactionId = parseInt(req.params.id); // Ensure ID is parsed as an integer
-  console.log(`Fetching transaction with ID: ${transactionId}`); // Add logging
+  const transactionId = parseInt(req.params.id);
+  console.log(`Fetching transaction with ID: ${transactionId}`);
   const transaction = transactions.find((t) => t.id === transactionId);
 
   if (!transaction) {
-    // Return a 404 if the transaction doesn't exist
-    console.log(`Transaction with ID: ${transactionId} not found`); // Add logging
+    console.log(`Transaction with ID: ${transactionId} not found`);
     return res.status(404).json({ message: "Transaction not found" });
   }
 
@@ -52,11 +55,32 @@ const getTransactionById = (req, res) => {
 const createTransaction = (req, res) => {
   console.log("Categories:", categories); // Debugging log
 
-  const { description, amount, date, category } = req.body;
+  const { description, amount, date, category, type } = req.body;
 
+  // Validate required fields
+  if (!description || !amount || !category || !type) {
+    return res.status(400).json({
+      message:
+        "Missing required fields: description, amount, category, and type are required.",
+    });
+  }
+
+  // Validate type (must be either 'income' or 'expense')
+  if (type !== "income" && type !== "expense") {
+    return res.status(400).json({
+      message: "Invalid type. Must be either 'income' or 'expense'.",
+    });
+  }
+
+  // Validate amount (must be a number greater than 0)
+  if (isNaN(amount) || amount <= 0) {
+    return res.status(400).json({
+      message: "Invalid amount. Must be a number greater than 0.",
+    });
+  }
+
+  // Validate category
   const isValidCategory = categories.some((c) => c.name === category);
-  console.log("Is valid category:", isValidCategory); // Debugging log
-
   if (!isValidCategory) {
     return res.status(400).json({
       message: `Invalid category. Choose from: ${categories
@@ -68,9 +92,10 @@ const createTransaction = (req, res) => {
   const newTransaction = {
     id: transactions.length + 1,
     description,
-    amount,
+    amount: parseFloat(amount),
     date: date || new Date().toISOString().split("T")[0],
     category,
+    type,
   };
 
   transactions.push(newTransaction);
@@ -78,31 +103,58 @@ const createTransaction = (req, res) => {
 };
 
 const updateTransaction = (req, res) => {
-  const { description, amount, date, category } = req.body;
-  const transaction = transactions.find(
-    (t) => t.id === parseInt(req.params.id)
-  );
+  const transactionId = parseInt(req.params.id);
+  const { description, amount, date, category, type } = req.body;
 
-  if (!transaction)
+  const transaction = transactions.find((t) => t.id === transactionId);
+  if (!transaction) {
     return res.status(404).json({ message: "Transaction not found" });
+  }
 
   if (description) transaction.description = description;
-  if (amount) transaction.amount = amount;
+  if (amount) {
+    if (isNaN(amount) || amount <= 0) {
+      return res.status(400).json({
+        message: "Invalid amount. Must be a number greater than 0.",
+      });
+    }
+    transaction.amount = parseFloat(amount);
+  }
   if (date) transaction.date = date;
-  if (category) transaction.category = category;
+  if (category) {
+    const isValidCategory = categories.some((c) => c.name === category);
+    if (!isValidCategory) {
+      return res.status(400).json({
+        message: `Invalid category. Choose from: ${categories
+          .map((c) => c.name)
+          .join(", ")}`,
+      });
+    }
+    transaction.category = category;
+  }
+  if (type) {
+    if (type !== "income" && type !== "expense") {
+      return res.status(400).json({
+        message: "Invalid type. Must be either 'income' or 'expense'.",
+      });
+    }
+    transaction.type = type;
+  }
 
   res.json(transaction);
 };
 
 const deleteTransaction = (req, res) => {
-  const { id } = req.params;
-  const transactionIndex = transactions.findIndex((t) => t.id === parseInt(id));
+  const transactionId = parseInt(req.params.id);
+  const transactionIndex = transactions.findIndex(
+    (t) => t.id === transactionId
+  );
   if (transactionIndex < 0) {
     return res.status(404).json({ message: "Transaction not found" });
   }
 
   transactions.splice(transactionIndex, 1);
-  res.json({ message: "Transaction deleted" });
+  res.json({ message: "Transaction deleted successfully" });
 };
 
 module.exports = {
