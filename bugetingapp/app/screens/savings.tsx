@@ -116,29 +116,14 @@ const SavingsScreen = () => {
   };
 
   const handleDeleteSaving = async (id: number) => {
-     // Optional Confirmation
-     Alert.alert("Confirm Delete", "Are you sure you want to delete this savings goal?", [
-       { text: "Cancel", style: "cancel" },
-       { text: "Delete", style: "destructive", onPress: async () => {
-           // Indicate loading state if needed
-           setError(null);
-           try {
-             const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-             if (!response.ok) {
-               throw new Error(`Failed to delete saving goal: ${response.status}`);
-             }
-             await fetchSavings(); // Refresh list
-           } catch (err) {
-             console.error("Error deleting saving:", err);
-             const errorMessage = err instanceof Error ? err.message : "Failed to delete saving goal.";
-             setError(errorMessage);
-             Alert.alert("Error", `Could not delete saving goal: ${errorMessage}`);
-           } finally {
-              // Clear loading indicator if used
-           }
-         }}
-     ]);
+    try {
+      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      if (response.ok) fetchSavings();
+    } catch (error) {
+      console.error("Error deleting saving:", error);
+    }
   };
+
 
   // --- Effects ---
   useEffect(() => {
