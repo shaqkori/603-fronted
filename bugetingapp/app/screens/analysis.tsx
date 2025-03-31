@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { BarChart } from "react-native-chart-kit";
-import { BASE_URL } from "../src/config"; // Assuming you're fetching transactions from the backend
+import { BASE_URL } from "../src/config";
+import TransactionList from "../components/transactionList"; // Import TransactionList
 
-const screenWidth = Dimensions.get("window").width; // Get the screen width dynamically
+const screenWidth = Dimensions.get("window").width;
 
 interface Transaction {
   id: number;
@@ -43,17 +44,15 @@ const AnalysisScreen = () => {
 
     setIncome(totalIncome);
     setExpenses(totalExpenses);
-  }, [transactions]); // Recalculate income/expenses whenever transactions change
+  }, [transactions]);
 
   // Fetch transactions initially
   useEffect(() => {
     fetchTransactions();
   }, []);
 
-  // Define a fixed maximum value for the Y-axis
-  const fixedMaxValue = 1000; // Set a fixed Y-axis maximum value (this can be adjusted as needed)
-  const chartHeight = 220; // Adjust the height as needed
-  const yAxisInterval = 100; // Fixed Y-axis interval
+  const chartHeight = 220;
+  const yAxisInterval = 100;
 
   return (
     <View style={styles.container}>
@@ -63,25 +62,25 @@ const AnalysisScreen = () => {
       {/* Bar Chart with Fixed Y-Axis Scale */}
       <BarChart
         data={{
-          labels: ["Income", "Expenses"], // Bar labels
+          labels: ["Income", "Expenses"],
           datasets: [
             {
-              data: [income, expenses], // Bar data (income and expenses)
+              data: [income, expenses],
             },
           ],
         }}
-        width={screenWidth - 40} // Adjust the width dynamically based on screen size
-        height={chartHeight} // Height of the chart
-        yAxisLabel="£" // Prefix for Y-axis (currency)
-        yAxisSuffix="" // Suffix for Y-axis (empty string if not needed)
-        yAxisInterval={yAxisInterval} // Fixed interval for Y-axis
+        width={screenWidth - 40}
+        height={chartHeight}
+        yAxisLabel="£"
+        yAxisSuffix=""
+        yAxisInterval={yAxisInterval}
         chartConfig={{
           backgroundColor: "#e26a00",
           backgroundGradientFrom: "#fb8c00",
           backgroundGradientTo: "#ffa726",
-          decimalPlaces: 2, // Number of decimal places for values
-          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // Bar color
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`, // Label color
+          decimalPlaces: 2,
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           style: {
             borderRadius: 16,
           },
@@ -92,8 +91,8 @@ const AnalysisScreen = () => {
           },
         }}
         style={styles.chart}
-        fromZero={true} // Ensures that the Y-axis starts at 0
-        showValuesOnTopOfBars={true} // Display values on top of bars
+        fromZero={true}
+        showValuesOnTopOfBars={true}
       />
 
       {/* Display income and expenses totals */}
@@ -101,6 +100,9 @@ const AnalysisScreen = () => {
         <Text style={styles.total}>Total Income: £{income.toFixed(2)}</Text>
         <Text style={styles.total}>Total Expenses: £{expenses.toFixed(2)}</Text>
       </View>
+
+      {/* Render TransactionList */}
+      <TransactionList transactions={transactions} onDeleteTransaction={() => {}} />
     </View>
   );
 };
