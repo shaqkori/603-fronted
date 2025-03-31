@@ -20,7 +20,7 @@ const TransactionList: React.FC<Props> = ({ transactions, onDeleteTransaction })
           <Text style={styles.category}>{item.category}</Text>
         </View>
         <Text style={[styles.amount, textColor]}>
-          {sign}£{item.amount.toFixed(2)}
+          {sign}${item.amount.toFixed(2)}
         </Text>
         <TouchableOpacity onPress={() => onDeleteTransaction(item.id)}>
           <Text style={styles.deleteButton}>X</Text>
