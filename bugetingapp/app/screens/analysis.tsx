@@ -194,13 +194,13 @@ const AnalysisScreen = () => {
             <View style={styles.totalItem}>
                 <Text style={styles.totalLabel}>Total Income</Text>
                 <Text style={[styles.totalAmount, styles.incomeText]}>
-                    £{income.toFixed(2)}
+                £{(Number(income) || 0).toFixed(2)}
                 </Text>
             </View>
             <View style={styles.totalItem}>
                 <Text style={styles.totalLabel}>Total Expenses</Text>
                 <Text style={[styles.totalAmount, styles.expenseText]}>
-                    £{expenses.toFixed(2)}
+                £{(Number(expenses) || 0).toFixed(2)}
                 </Text>
             </View>
          </View>

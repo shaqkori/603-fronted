@@ -149,7 +149,7 @@ const CategoriesScreen = () => {
           // item.type === 'income' ? styles.incomeText : styles.expenseText,
         ]}
       >
-        £{item.amount.toFixed(2)}
+        £{(Number(item.amount) || 0).toFixed(2)}
       </Text>
     </View>
   );

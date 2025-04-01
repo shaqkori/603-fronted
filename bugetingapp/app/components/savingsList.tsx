@@ -36,8 +36,8 @@ const SavingsList: React.FC<SavingsListProps> = ({ savings, onDeleteSaving }) =>
       ? Math.min(1, (item.currentAmount ?? 0) / item.targetAmount)
       : 0;
 
-    const formattedCurrent = (item.currentAmount ?? 0).toFixed(2);
-    const formattedTarget = (item.targetAmount ?? 0).toFixed(2);
+      const formattedCurrent = (Number(item.currentAmount) || 0).toFixed(2);
+      const formattedTarget = (Number(item.targetAmount) || 0).toFixed(2);
 
     // Ensure item.id exists before calling onDeleteSaving
     const handleDelete = () => {

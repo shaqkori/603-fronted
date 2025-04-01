@@ -116,9 +116,11 @@ const TransactionsScreen = () => {
       amount: numericAmount,
       type,
       date: new Date().toISOString(), // Send full ISO string
-      category: selectedCategory.name, // Adjust if backend needs categoryId
+      category_id: selectedCategory.id, // Adjust if backend needs categoryId
       // categoryId: selectedCategory.id,
     };
+
+    console.log("Submitting Transaction:", newTransaction);
 
     try {
       const response = await fetch(API_URL, {
