@@ -124,7 +124,6 @@ const SavingsScreen = () => {
     }
   };
 
-
   // --- Effects ---
   useEffect(() => {
     fetchSavings();
@@ -189,7 +188,22 @@ const SavingsScreen = () => {
             <SavingsList
               savings={savings}
               onDeleteSaving={handleDeleteSaving}
-              // Add any other props your SavingsList needs, like onEdit, onAddContribution etc.
+              onUpdateSavingAmount={async (savingId, amountToAdd) => {
+                try {
+                  const response = await fetch(`${API_URL}/${savingId}/updateAmount`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ amountToAdd }),
+                  });
+                  if (!response.ok) {
+                    throw new Error(`Failed to update saving amount: ${response.status}`);
+                  }
+                  await fetchSavings(); // Refresh the list after updating
+                } catch (error) {
+                  console.error("Error updating saving amount:", error);
+                  Alert.alert("Error", "Could not update saving amount.");
+                }
+              }}
             />
             // Add ListEmptyComponent message directly here if SavingsList doesn't handle it
              // {savings.length === 0 && !loadingSavings && !error && (

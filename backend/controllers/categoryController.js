@@ -1,19 +1,15 @@
-const categories = [
-  { id: 1, name: "Groceries" },
-  { id: 2, name: "Subscription" },
-  { id: 3, name: "Transportation" },
-  { id: 4, name: "Food & Drink" },
-  { id: 5, name: "Utilities" },
-  { id: 6, name: "Entertainment" },
-  { id: 7, name: "Healthcare" },
-  { id: 8, name: "Miscellaneous" },
-];
+const db = require("../config/db");
 
-const getCategories = (req, res) => {
-  res.json(categories);
+const getCategories = async (req, res) => {
+  try {
+    const [categories] = await db.execute("SELECT * FROM categories");
+    res.json(categories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 module.exports = {
-  categories,
   getCategories,
 };

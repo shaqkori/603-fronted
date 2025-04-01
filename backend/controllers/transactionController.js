@@ -1,160 +1,132 @@
-const { categories } = require("../controllers/categoryController");
+const db = require("../config/db"); // Import your MySQL connection
 
-const transactions = [
-  {
-    id: 1,
-    description: "Grocery Store",
-    amount: 50.25,
-    date: "2024-03-01",
-    category: "Groceries",
-    type: "expense",
-  },
-  {
-    id: 2,
-    description: "Netflix",
-    amount: 15.99,
-    date: "2024-03-02",
-    category: "Subscription",
-    type: "expense",
-  },
-  {
-    id: 3,
-    description: "Freelance Payment",
-    amount: 500.0,
-    date: "2024-03-03",
-    category: "Income",
-    type: "income",
-  },
-  {
-    id: 4,
-    description: "Gas Station",
-    amount: 40.0,
-    date: "2024-03-03",
-    category: "Transportation",
-    type: "expense",
-  },
-];
-
-const getTransactions = (req, res) => {
-  res.json(transactions);
+// Get all transactions
+const getTransactions = async (req, res) => {
+  try {
+    const [rows] = await db.execute("SELECT * FROM transactions");
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
-const getTransactionById = (req, res) => {
+// Get a transaction by ID
+const getTransactionById = async (req, res) => {
   const transactionId = parseInt(req.params.id);
-  console.log(`Fetching transaction with ID: ${transactionId}`);
-  const transaction = transactions.find((t) => t.id === transactionId);
-
-  if (!transaction) {
-    console.log(`Transaction with ID: ${transactionId} not found`);
-    return res.status(404).json({ message: "Transaction not found" });
+  try {
+    const [rows] = await db.execute("SELECT * FROM transactions WHERE id = ?", [
+      transactionId,
+    ]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Error fetching transaction:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  res.json(transaction);
 };
 
-const createTransaction = (req, res) => {
-  console.log("Categories:", categories); // Debugging log
+// Create a new transaction
+const createTransaction = async (req, res) => {
+  const { description, amount, date, category_id, type } = req.body;
 
-  const { description, amount, date, category, type } = req.body;
-
-  // Validate required fields
-  if (!description || !amount || !category || !type) {
-    return res.status(400).json({
-      message:
-        "Missing required fields: description, amount, category, and type are required.",
-    });
+  if (!description || !amount || !category_id || !type) {
+    return res.status(400).json({ message: "Missing required fields" });
   }
 
-  // Validate type (must be either 'income' or 'expense')
   if (type !== "income" && type !== "expense") {
-    return res.status(400).json({
-      message: "Invalid type. Must be either 'income' or 'expense'.",
-    });
+    return res
+      .status(400)
+      .json({ message: "Invalid type. Must be 'income' or 'expense'" });
   }
 
-  // Validate amount (must be a number greater than 0)
-  if (isNaN(amount) || amount <= 0) {
-    return res.status(400).json({
-      message: "Invalid amount. Must be a number greater than 0.",
-    });
+  try {
+    const [result] = await db.execute(
+      "INSERT INTO transactions (description, amount, date, category_id, type) VALUES (?, ?, ?, ?, ?)",
+      [
+        description,
+        amount,
+        date || new Date().toISOString().split("T")[0],
+        category_id,
+        type,
+      ]
+    );
+
+    res
+      .status(201)
+      .json({
+        id: result.insertId,
+        description,
+        amount,
+        date,
+        category_id,
+        type,
+      });
+  } catch (error) {
+    console.error("Error creating transaction:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  // Validate category
-  const isValidCategory = categories.some((c) => c.name === category);
-  if (!isValidCategory) {
-    return res.status(400).json({
-      message: `Invalid category. Choose from: ${categories
-        .map((c) => c.name)
-        .join(", ")}`,
-    });
-  }
-
-  const newTransaction = {
-    id: transactions.length + 1,
-    description,
-    amount: parseFloat(amount),
-    date: date || new Date().toISOString().split("T")[0],
-    category,
-    type,
-  };
-
-  transactions.push(newTransaction);
-  res.status(201).json(newTransaction);
 };
 
-const updateTransaction = (req, res) => {
+// Update a transaction
+const updateTransaction = async (req, res) => {
   const transactionId = parseInt(req.params.id);
-  const { description, amount, date, category, type } = req.body;
+  const { description, amount, date, category_id, type } = req.body;
 
-  const transaction = transactions.find((t) => t.id === transactionId);
-  if (!transaction) {
-    return res.status(404).json({ message: "Transaction not found" });
-  }
+  try {
+    const [result] = await db.execute(
+      "SELECT * FROM transactions WHERE id = ?",
+      [transactionId]
+    );
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
 
-  if (description) transaction.description = description;
-  if (amount) {
-    if (isNaN(amount) || amount <= 0) {
-      return res.status(400).json({
-        message: "Invalid amount. Must be a number greater than 0.",
-      });
-    }
-    transaction.amount = parseFloat(amount);
-  }
-  if (date) transaction.date = date;
-  if (category) {
-    const isValidCategory = categories.some((c) => c.name === category);
-    if (!isValidCategory) {
-      return res.status(400).json({
-        message: `Invalid category. Choose from: ${categories
-          .map((c) => c.name)
-          .join(", ")}`,
-      });
-    }
-    transaction.category = category;
-  }
-  if (type) {
-    if (type !== "income" && type !== "expense") {
-      return res.status(400).json({
-        message: "Invalid type. Must be either 'income' or 'expense'.",
-      });
-    }
-    transaction.type = type;
-  }
+    await db.execute(
+      "UPDATE transactions SET description = ?, amount = ?, date = ?, category_id = ?, type = ? WHERE id = ?",
+      [
+        description || result[0].description,
+        amount || result[0].amount,
+        date || result[0].date,
+        category_id || result[0].category_id,
+        type || result[0].type,
+        transactionId,
+      ]
+    );
 
-  res.json(transaction);
+    res.json({
+      id: transactionId,
+      description,
+      amount,
+      date,
+      category_id,
+      type,
+    });
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
-const deleteTransaction = (req, res) => {
+// Delete a transaction
+const deleteTransaction = async (req, res) => {
   const transactionId = parseInt(req.params.id);
-  const transactionIndex = transactions.findIndex(
-    (t) => t.id === transactionId
-  );
-  if (transactionIndex < 0) {
-    return res.status(404).json({ message: "Transaction not found" });
-  }
 
-  transactions.splice(transactionIndex, 1);
-  res.json({ message: "Transaction deleted successfully" });
+  try {
+    const [result] = await db.execute("DELETE FROM transactions WHERE id = ?", [
+      transactionId,
+    ]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+
+    res.json({ message: "Transaction deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 module.exports = {
