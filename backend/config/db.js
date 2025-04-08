@@ -37,37 +37,56 @@ async function testConnection() {
 async function createTables(connection) {
   try {
     await connection.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(255) PRIMARY KEY,
+        email VARCHAR(255) NOT NULL UNIQUE,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log("Table 'users' is ready");
+
+    await connection.execute(`
       CREATE TABLE IF NOT EXISTS categories (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL UNIQUE,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    console.log("Table 'categories' is ready");
 
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS transactions (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
         amount DECIMAL(10,2) NOT NULL,
         category_id INT,
         description TEXT,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+        INDEX (user_id),
+        INDEX (category_id)
       )
     `);
+    console.log("Table 'transactions' is ready");
 
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS savings (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
         goal_name VARCHAR(255) NOT NULL,
         target_amount DECIMAL(10,2) NOT NULL,
         current_amount DECIMAL(10,2) DEFAULT 0,
-        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        INDEX (user_id)
       )
     `);
+    console.log("Table 'savings' is ready");
 
-    console.log("✅ Tables are ready");
+    console.log("All tables are ready");
   } catch (error) {
-    console.error("❌ Error creating tables:", error);
+    console.error("Error creating tables:", error);
     process.exit(1);
   }
 }
@@ -81,7 +100,7 @@ async function insertCategories(connection) {
       "Entertainment",
       "Utilities",
       "Savings",
-      "income",
+      "Income",
     ];
 
     for (const category of categories) {
@@ -91,9 +110,9 @@ async function insertCategories(connection) {
       );
     }
 
-    console.log("✅ Default categories inserted (if not already present)");
+    console.log("Default categories inserted (if not already present)");
   } catch (error) {
-    console.error("❌ Error inserting categories:", error);
+    console.error("Error inserting categories:", error);
     process.exit(1);
   }
 }

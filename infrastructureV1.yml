@@ -310,20 +310,101 @@ Resources:
       ConnectionId: !Ref ApiGatewayVpcLink
       PayloadFormatVersion: "1.0"
 
-  DataAPIGetRoute:
+  CategoriesGetRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref DataAPI
-      RouteKey: "GET /data"
+      RouteKey: "GET /categories"
       AuthorizationType: JWT
       AuthorizerId: !Ref CogAuthorizer
       Target: !Sub "integrations/${ApiIntegration}"
 
-  DataAPIPostRoute:
+  SavingsGetRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref DataAPI
-      RouteKey: "POST /data"
+      RouteKey: "GET /savings"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  SavingsPostRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "POST /savings"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  SavingsIdGetRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "GET /savings/{id}"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  SavingsIdPutRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "PUT /savings/{id}"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  SavingsIdDeleteRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "DELETE /savings/{id}"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  TransactionsGetRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "GET /transactions"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  TransactionsPostRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "POST /transactions"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  TransactionsIdGetRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "GET /transactions/{id}"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  TransactionsIdPutRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "PUT /transactions/{id}"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref CogAuthorizer
+      Target: !Sub "integrations/${ApiIntegration}"
+
+  TransactionsIdDeleteRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref DataAPI
+      RouteKey: "DELETE /transactions/{id}"
       AuthorizationType: JWT
       AuthorizerId: !Ref CogAuthorizer
       Target: !Sub "integrations/${ApiIntegration}"
@@ -331,8 +412,17 @@ Resources:
   Deployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
-      - DataAPIGetRoute
-      - DataAPIPostRoute
+      - CategoriesGetRoute
+      - SavingsGetRoute
+      - SavingsPostRoute
+      - SavingsIdGetRoute
+      - SavingsIdPutRoute
+      - SavingsIdDeleteRoute
+      - TransactionsGetRoute
+      - TransactionsPostRoute
+      - TransactionsIdGetRoute
+      - TransactionsIdPutRoute
+      - TransactionsIdDeleteRoute
     Properties:
       Description: deployment
       ApiId: !Ref DataAPI
@@ -592,7 +682,7 @@ Resources:
         DeploymentCircuitBreaker:
           Enable: true
           Rollback: true
-      HealthCheckGracePeriodSeconds: 120 # Increased from 60
+      HealthCheckGracePeriodSeconds: 120
       Tags:
         - Key: Name
           Value: budgetapp-prod-ecs-service
