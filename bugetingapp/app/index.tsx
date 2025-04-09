@@ -5,6 +5,9 @@ import Transactions from "./screens/transactions";
 import Categories from "./screens/categories";
 import  SavingsScreen  from "./screens/savings";
 import BottomNav from "./components/navigation";
+import {Amplify} from 'aws-amplify';
+import awsconfig from '../aws-exports';
+import { Authenticator } from '@aws-amplify/ui-react-native';
 
 
 import { NavigationContainer } from "@react-navigation/native";
@@ -18,10 +21,15 @@ export default function Index() {
   
   return (
    
+      <SafeAreaView style={{ flex: 1 }}>
+
+  <BottomNav />
+
+      </SafeAreaView>
       
         
         
-          <BottomNav />
+       
         
         
         
