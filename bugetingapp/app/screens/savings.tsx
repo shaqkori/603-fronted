@@ -124,6 +124,24 @@ const SavingsScreen = () => {
     }
   };
 
+  const handleUpdateSavingAmount = async (savingId: number, newAmount: number) => {
+    try {
+      const response = await fetch(`${API_URL}/${savingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentAmount: newAmount }), // Send the new currentAmount
+      });
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`Failed to update saving amount: ${response.status} ${errorData}`);
+      }
+      await fetchSavings(); // Refresh the list after updating
+    } catch (error) {
+      console.error("Error updating saving amount:", error);
+      Alert.alert("Error", "Could not update saving amount.");
+    }
+  };
+
   // --- Effects ---
   useEffect(() => {
     fetchSavings();
@@ -188,22 +206,8 @@ const SavingsScreen = () => {
             <SavingsList
               savings={savings}
               onDeleteSaving={handleDeleteSaving}
-              onUpdateSavingAmount={async (savingId, amountToAdd) => {
-                try {
-                  const response = await fetch(`${API_URL}/${savingId}/updateAmount`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ amountToAdd }),
-                  });
-                  if (!response.ok) {
-                    throw new Error(`Failed to update saving amount: ${response.status}`);
-                  }
-                  await fetchSavings(); // Refresh the list after updating
-                } catch (error) {
-                  console.error("Error updating saving amount:", error);
-                  Alert.alert("Error", "Could not update saving amount.");
-                }
-              }}
+              onUpdateSavingAmount={handleUpdateSavingAmount}
+              
             />
             // Add ListEmptyComponent message directly here if SavingsList doesn't handle it
              // {savings.length === 0 && !loadingSavings && !error && (

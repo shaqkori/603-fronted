@@ -54,16 +54,14 @@ const createTransaction = async (req, res) => {
       ]
     );
 
-    res
-      .status(201)
-      .json({
-        id: result.insertId,
-        description,
-        amount,
-        date,
-        category_id,
-        type,
-      });
+    res.status(201).json({
+      id: result.insertId,
+      description,
+      amount,
+      date,
+      category_id,
+      type,
+    });
   } catch (error) {
     console.error("Error creating transaction:", error);
     res.status(500).json({ message: "Internal server error" });

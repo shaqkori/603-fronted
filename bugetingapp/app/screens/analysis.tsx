@@ -4,14 +4,14 @@ import {
   Text,
   StyleSheet,
   Dimensions,
-  ScrollView, // Use ScrollView for overall layout if content might exceed screen height
-  ActivityIndicator, // Show loading state
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
-import { BarChart } from "react-native-chart-kit";
+import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel } from "victory";
 import { BASE_URL } from "../src/config";
-import TransactionList from "../components/transactionList"; // Assuming TransactionList handles its own scrolling
+import TransactionList from "../components/transactionList";
 
-const screenWidth = Dimensions.get("window").width;
+const screenWidth = Dimensions.get("window").width - 40;
 
 interface Transaction {
   id: number;
@@ -22,26 +22,25 @@ interface Transaction {
   type: "income" | "expense";
 }
 
-// Define a professional color palette
 const Colors = {
-  background: "#f8f9fa", // Very light grey background
-  surface: "#ffffff", // White for card backgrounds
-  primaryText: "#212529", // Dark grey/black for main text
-  secondaryText: "#6c757d", // Medium grey for subtitles/labels
-  income: "#28a745", // Green for income
-  expense: "#dc3545", // Red for expenses
-  chartGrid: "#e9ecef", // Light grey for chart lines
-  chartLabel: "#495057", // Darker grey for chart labels
+  background: "#f8f9fa",
+  surface: "#ffffff",
+  primaryText: "#212529",
+  secondaryText: "#6c757d",
+  income: "#28a745",
+  expense: "#dc3545",
+  chartGrid: "#e9ecef",
+  chartLabel: "#495057",
 };
 
 const AnalysisScreen = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [income, setIncome] = useState<number>(0);
   const [expenses, setExpenses] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true); // Add loading state
-  const [error, setError] = useState<string | null>(null); // Add error state
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [maxValue, setMaxValue] = useState<number>(0);
 
-  // Fetch all transactions from the server
   const fetchTransactions = async () => {
     setLoading(true);
     setError(null);
@@ -62,7 +61,6 @@ const AnalysisScreen = () => {
     }
   };
 
-  // Recalculate income and expenses whenever transactions change
   useEffect(() => {
     const totalIncome = transactions
       .filter((transaction) => transaction.type === "income")
@@ -74,14 +72,13 @@ const AnalysisScreen = () => {
 
     setIncome(totalIncome);
     setExpenses(totalExpenses);
+    setMaxValue(Math.max(totalIncome, totalExpenses) * 1.2); // Calculate max value for scale
   }, [transactions]);
 
-  // Fetch transactions initially
   useEffect(() => {
     fetchTransactions();
   }, []);
 
-  // Handle loading state
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -91,140 +88,106 @@ const AnalysisScreen = () => {
     );
   }
 
-  // Handle error state
   if (error) {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>Error: {error}</Text>
-        {/* Optionally add a retry button */}
       </View>
     );
   }
 
-  const chartHeight = 250; // Slightly taller chart
-  // Dynamic interval calculation (optional, but can be better than fixed)
-  const maxValue = Math.max(income, expenses, 100); // Ensure minimum height
-  const yAxisInterval = Math.ceil(maxValue / 5 / 50) * 50; // Aim for ~5 labels, rounded nicely
-
-  // Configure chart colors and style
-  const chartConfig = {
-    backgroundColor: Colors.surface, // Use surface color for background
-    backgroundGradientFrom: Colors.surface,
-    backgroundGradientTo: Colors.surface,
-    decimalPlaces: 2, // Show pounds and pence
-    // Use a function for bar colors to assign specific colors
-    color: (opacity = 1, index?: number) => {
-        // Index 0 is Income, Index 1 is Expenses (based on labels array)
-        const colors = [Colors.income, Colors.expense];
-        // If index is provided, use the corresponding color, otherwise default
-        const baseColor = index !== undefined ? colors[index] : Colors.primaryText;
-        // Apply opacity - Ensure the baseColor is treated as hex
-        // Convert hex to RGB if needed, or assume rgba format works
-        // Basic hex to rgba approximation (might need a robust library for accuracy)
-        const hexToRgb = (hex: string) => {
-            let r = 0, g = 0, b = 0;
-            if (hex.length == 4) { // #rgb
-                r = parseInt(hex[1] + hex[1], 16);
-                g = parseInt(hex[2] + hex[2], 16);
-                b = parseInt(hex[3] + hex[3], 16);
-            } else if (hex.length == 7) { // #rrggbb
-                r = parseInt(hex[1] + hex[2], 16);
-                g = parseInt(hex[3] + hex[4], 16);
-                b = parseInt(hex[5] + hex[6], 16);
-            }
-            return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-        }
-        return hexToRgb(baseColor);
-    },
-    labelColor: (opacity = 1) => `rgba(73, 80, 87, ${opacity})`, // Use Colors.chartLabel with opacity
-    style: {
-      borderRadius: 16,
-    },
-    propsForBackgroundLines: {
-      strokeDasharray: "", // solid lines
-      stroke: Colors.chartGrid, // Use light grey for grid lines
-    },
-    propsForLabels: {
-        fontSize: 11, // Slightly smaller labels if needed
-    },
-    barPercentage: 0.7, // Adjust bar width
-  };
+  const chartHeight = 200;
+  const chartData = [
+    { x: "Income", y: income || 0, fill: Colors.income },
+    { x: "Expenses", y: expenses || 0, fill: Colors.expense },
+  ];
 
   return (
-    // Use ScrollView if TransactionList itself isn't scrollable or if you have more content
-    // If TransactionList handles its own scrolling (like FlatList), you might not need ScrollView here
-    // Using View with flex: 1 for TransactionList container is often better
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Financial Analysis</Text>
 
       {/* Chart Section */}
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Income vs Expenses</Text>
-        <BarChart
-          data={{
-            labels: ["Income", "Expenses"],
-            datasets: [
-              {
-                data: [income, expenses],
-                // Optional: Define colors per bar directly if the config function is tricky
-                // colors: [
-                //   (opacity = 1) => `rgba(40, 167, 69, ${opacity})`, // Income Green
-                //   (opacity = 1) => `rgba(220, 53, 69, ${opacity})`  // Expense Red
-                // ]
-              },
-            ],
-          }}
-          width={screenWidth - 40} // Adjust width based on container padding
+        <VictoryChart
+          width={screenWidth}
           height={chartHeight}
-          yAxisLabel="£"
-          yAxisSuffix=""
-          yAxisInterval={yAxisInterval > 0 ? yAxisInterval : 1} // Ensure interval is positive
-          chartConfig={chartConfig}
-          style={styles.chart}
-          fromZero={true}
-          showValuesOnTopOfBars={true}
-          verticalLabelRotation={0} // Keep labels horizontal
-        />
+          domainPadding={{ x: 40 }} // Adjust padding for labels
+          padding={{ top: 20, bottom: 50, left: 50, right: 20 }} // Adjust overall padding
+        >
+          <VictoryAxis
+            dependentAxis
+            tickFormat={(t: number) => `£${t}`}
+            style={{
+              axisLabel: { fontSize: 12, padding: 30, fill: Colors.primaryText },
+              tickLabels: { fontSize: 10, fill: Colors.secondaryText },
+              axis: { stroke: Colors.chartGrid, strokeWidth: 0.5 },
+              grid: { stroke: Colors.chartGrid, strokeWidth: 0.5 },
+            }}
+            axisLabelComponent={<VictoryLabel style={{ ...styles.axisLabel }} dy={-10} />} // Adjust label position
+          />
+          <VictoryAxis
+            style={{
+              axisLabel: { fontSize: 12, padding: 20, fill: Colors.primaryText },
+              tickLabels: { fontSize: 10, fill: Colors.secondaryText },
+              axis: { stroke: Colors.chartGrid, strokeWidth: 0.5 },
+            }}
+          />
+          <VictoryBar
+            data={chartData}
+            x="x"
+            y="y"
+            style={{
+              data: {
+                fill: ({ datum }: { datum?: { fill: string } }) => datum?.fill || Colors.chartGrid,
+                width: 30, // Adjust bar width
+              },
+              labels: { fill: Colors.primaryText, fontSize: 12 },
+            }}
+            labels={({ datum }: { datum: { y: number } }) =>
+              typeof datum.y === "number" ? `£${datum.y.toFixed(2)}` : ""
+            }
+          />
+        </VictoryChart>
       </View>
 
       {/* Totals Section */}
       <View style={styles.sectionContainer}>
-         <Text style={styles.sectionTitle}>Summary</Text>
-         <View style={styles.totalsRow}>
-            <View style={styles.totalItem}>
-                <Text style={styles.totalLabel}>Total Income</Text>
-                <Text style={[styles.totalAmount, styles.incomeText]}>
-                £{(Number(income) || 0).toFixed(2)}
-                </Text>
-            </View>
-            <View style={styles.totalItem}>
-                <Text style={styles.totalLabel}>Total Expenses</Text>
-                <Text style={[styles.totalAmount, styles.expenseText]}>
-                £{(Number(expenses) || 0).toFixed(2)}
-                </Text>
-            </View>
-         </View>
+        <Text style={styles.sectionTitle}>Summary</Text>
+        <View style={styles.totalsRow}>
+          <View style={styles.totalItem}>
+            <Text style={styles.totalLabel}>Total Income</Text>
+            <Text style={[styles.totalAmount, styles.incomeText]}>
+              £{(Number(income) || 0).toFixed(2)}
+            </Text>
+          </View>
+          <View style={styles.totalItem}>
+            <Text style={styles.totalLabel}>Total Expenses</Text>
+            <Text style={[styles.totalAmount, styles.expenseText]}>
+              £{(Number(expenses) || 0).toFixed(2)}
+            </Text>
+          </View>
+        </View>
       </View>
 
       {/* Transaction List Section */}
-      {/* Wrap TransactionList in a View with flex: 1 to take remaining space */}
       <View style={styles.listContainer}>
-         <Text style={styles.sectionTitle}>Recent Transactions</Text>
-         <TransactionList
-            transactions={transactions}
-            onDeleteTransaction={fetchTransactions} // Refresh list on delete
-         />
+        <Text style={styles.sectionTitle}>Recent Transactions</Text>
+        <TransactionList
+          transactions={transactions}
+          onDeleteTransaction={fetchTransactions}
+        />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: Colors.background,
-    paddingHorizontal: 20, // Use horizontal padding
-    paddingTop: 20, // Add padding at the top
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   centered: {
     flex: 1,
@@ -234,77 +197,71 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   loadingText: {
-      marginTop: 10,
-      fontSize: 16,
-      color: Colors.secondaryText,
+    marginTop: 10,
+    fontSize: 16,
+    color: Colors.secondaryText,
   },
   errorText: {
     fontSize: 16,
     color: Colors.expense,
-    textAlign: 'center',
+    textAlign: "center",
   },
   title: {
-    fontSize: 28, // Larger title
+    fontSize: 28,
     fontWeight: "bold",
     color: Colors.primaryText,
-    marginBottom: 25, // More space below title
-    textAlign: 'left', // Align to left
+    marginBottom: 25,
+    textAlign: "left",
   },
   sectionContainer: {
     backgroundColor: Colors.surface,
-    borderRadius: 12, // Consistent border radius
+    borderRadius: 12,
     padding: 15,
-    marginBottom: 20, // Space between sections
-    // Add subtle shadow for depth (iOS)
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
-    // Add elevation for depth (Android)
     elevation: 2,
   },
-   sectionTitle: {
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: "600", // Semi-bold
+    fontWeight: "600",
     color: Colors.primaryText,
-    marginBottom: 15, // Space below section title
-  },
-  chart: {
-    // Remove marginVertical here, handled by sectionContainer
-    borderRadius: 8, // Match container or slightly less
-    // The chartConfig handles internal styling like background
+    marginBottom: 15,
   },
   totalsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around', // Distribute totals evenly
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
   },
   totalItem: {
-    alignItems: 'center', // Center text within each item
-    paddingHorizontal: 10, // Add some padding if needed
+    alignItems: "center",
+    paddingHorizontal: 10,
   },
   totalLabel: {
     fontSize: 14,
     color: Colors.secondaryText,
-    marginBottom: 5, // Space between label and amount
+    marginBottom: 5,
   },
   totalAmount: {
-    fontSize: 18, // Make amount stand out
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: "bold",
   },
   incomeText: {
-    color: Colors.income, // Use income color
+    color: Colors.income,
   },
   expenseText: {
-    color: Colors.expense, // Use expense color
+    color: Colors.expense,
   },
   listContainer: {
-      flex: 1, // Allows TransactionList to take remaining vertical space
-      // Optional: Add background and padding if TransactionList doesn't have its own card style
-      // backgroundColor: Colors.surface,
-      // borderRadius: 12,
-      // padding: 15,
-      marginBottom: 20, // Space at the bottom
+    flex: 1,
+    marginBottom: 20,
+  },
+  axisLabel: {
+    color: Colors.primaryText,
+    fontSize: 12,
+    fontWeight: "bold",
   },
 });
 

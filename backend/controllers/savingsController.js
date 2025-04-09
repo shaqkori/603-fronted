@@ -47,15 +47,13 @@ const createSavings = async (req, res) => {
       ]
     );
 
-    res
-      .status(201)
-      .json({
-        id: result.insertId,
-        name,
-        targetAmount,
-        currentAmount,
-        dateCreated,
-      });
+    res.status(201).json({
+      id: result.insertId,
+      name,
+      targetAmount,
+      currentAmount,
+      dateCreated,
+    });
   } catch (error) {
     console.error("Error creating savings goal:", error);
     res.status(500).json({ message: "Internal server error" });

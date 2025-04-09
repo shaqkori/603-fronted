@@ -115,8 +115,8 @@ const TransactionsScreen = () => {
       description: description.trim(),
       amount: numericAmount,
       type,
-      date: new Date().toISOString(), // Send full ISO string
-      category_id: selectedCategory.id, // Adjust if backend needs categoryId
+      date: new Date().toISOString(), 
+      category_id: selectedCategory.id, 
       // categoryId: selectedCategory.id,
     };
 
