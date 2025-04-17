@@ -5,26 +5,25 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator, // Import ActivityIndicator
-  Dimensions, // If needed for specific sizing
+  ActivityIndicator, 
+  Dimensions, 
 } from "react-native";
 import { BASE_URL } from "../src/config";
-import { Category } from "../types/category"; // Assuming Category has { id: number; name: string; }
+import { Category } from "../types/category"; 
 
-// Assuming BASE_URL points to something like 'http://<your-ip>:<port>/api'
-// And your endpoints are /categories and /transactions
 
-// Define or import the professional color palette
+
+// Defines  color palette
 const Colors = {
-  background: "#f8f9fa", // Very light grey background
-  surface: "#ffffff", // White for card backgrounds
+  background: "#FAFBE5", // Very light grey background
+  surface: "#DDEB8E", // White for card backgrounds
   primaryText: "#212529", // Dark grey/black for main text
   secondaryText: "#6c757d", // Medium grey for subtitles/labels
-  primary: "#007bff", // A standard primary blue for selection/actions
+  primary: "#2E931A", // A standard primary blue for selection/actions
   primaryLight: "#e7f3ff", // Light blue for subtle backgrounds or borders
   income: "#28a745", // Green for income (if needed)
   expense: "#dc3545", // Red for expenses (used for error text)
-  border: "#dee2e6", // Light grey for borders/dividers
+  border: "#191A04", // Light grey for borders/dividers
   white: "#ffffff",
 };
 
@@ -33,28 +32,29 @@ interface Transaction {
   id: number;
   description: string;
   amount: number;
-  date: string; // Keep date if needed for display later
-  category: string; // Keep category name if available from API
-  categoryId: number; // Ensure you have categoryId if fetching by it
-  type: "income" | "expense"; // Add type if needed for styling amount
+  date: string; 
+  category: string; 
+  categoryId: number; 
+  type: "income" | "expense"; 
 }
 
+
 const CategoriesScreen = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+  const [categories, setCategories] = useState<Category[]>([]); // Holds the list of categories fetched from the backend
+  const [transactions, setTransactions] = useState<Transaction[]>([]); // Holds the transactions filtered by the selected category
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(   // Tracks which category the user has selected
     null
   );
-  const [loadingCategories, setLoadingCategories] = useState<boolean>(true);
+  const [loadingCategories, setLoadingCategories] = useState<boolean>(true); // Manages loading state when categories are being fetched
   const [loadingTransactions, setLoadingTransactions] = useState<boolean>(
     false
   );
-  const [errorCategories, setErrorCategories] = useState<string | null>(null);
+  const [errorCategories, setErrorCategories] = useState<string | null>(null);  // Stores any error message that occurs while fetching categories
   const [errorTransactions, setErrorTransactions] = useState<string | null>(
     null
   );
 
-  const fetchCategories = async () => {
+  const fetchCategories = async () => { 
     setLoadingCategories(true);
     setErrorCategories(null);
     try {
@@ -75,14 +75,13 @@ const CategoriesScreen = () => {
   };
 
   const fetchTransactionsByCategory = async (categoryId: number) => {
-    // Reset previous transactions and error
+   
     setTransactions([]);
     setErrorTransactions(null);
-    setLoadingTransactions(true); // Set loading true when fetching starts
+    setLoadingTransactions(true); 
 
     try {
-      // Construct the URL carefully. Ensure your API supports filtering by categoryId like this.
-      // If your API uses category name or a different param, adjust accordingly.
+
       const response = await fetch(
         `${BASE_URL}/transactions?categoryId=${categoryId}`
       );
@@ -107,7 +106,7 @@ const CategoriesScreen = () => {
   };
 
   useEffect(() => {
-    fetchCategories(); // Fetch categories when the component mounts
+    fetchCategories(); 
   }, []);
 
   // --- Render Helper Functions ---
@@ -118,15 +117,15 @@ const CategoriesScreen = () => {
       <TouchableOpacity
         style={[
           styles.categoryButton,
-          isSelected && styles.selectedCategoryButton, // Apply selected style
+          isSelected && styles.selectedCategoryButton, 
         ]}
         onPress={() => handleCategoryPress(item)}
-        disabled={loadingTransactions && isSelected} // Disable briefly if loading its transactions
+        disabled={loadingTransactions && isSelected} 
       >
         <Text
           style={[
             styles.categoryText,
-            isSelected && styles.selectedCategoryText, // Apply selected text style
+            isSelected && styles.selectedCategoryText,
           ]}
         >
           {item.name}
@@ -139,14 +138,12 @@ const CategoriesScreen = () => {
     <View style={styles.transactionItem}>
       <View style={styles.transactionDetails}>
         <Text style={styles.transactionDescription}>{item.description}</Text>
-        {/* Optional: Display date */}
-        {/* <Text style={styles.transactionDate}>{new Date(item.date).toLocaleDateString()}</Text> */}
+ 
       </View>
       <Text
         style={[
           styles.transactionAmount,
-          // Optional: Style amount based on type if available
-          // item.type === 'income' ? styles.incomeText : styles.expenseText,
+
         ]}
       >
         £{(Number(item.amount) || 0).toFixed(2)}
@@ -169,7 +166,7 @@ const CategoriesScreen = () => {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>Error: {errorCategories}</Text>
-        {/* Optionally add a retry button */}
+      
         <TouchableOpacity onPress={fetchCategories} style={styles.retryButton}>
             <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
@@ -181,20 +178,20 @@ const CategoriesScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Categories</Text>
 
-      {/* Categories List */}
+   
       <View style={styles.listSection}>
-        {/* <Text style={styles.sectionTitle}>Select a Category</Text> */}
+    
         <FlatList
           data={categories}
           renderItem={renderCategoryItem}
           keyExtractor={(item) => item.id.toString()}
-          horizontal={false} // Keep it vertical unless design calls for horizontal
+          horizontal={false} 
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<Text style={styles.emptyListText}>No categories found.</Text>}
         />
       </View>
 
-      {/* Transactions for Selected Category */}
+     
       {selectedCategory && (
         <View style={[styles.listSection, styles.transactionListContainer]}>
           <Text style={styles.sectionTitle}>
@@ -229,7 +226,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-    paddingHorizontal: 15, // Consistent padding
+    paddingHorizontal: 15, 
     paddingTop: 20,
   },
   centered: {
@@ -284,58 +281,58 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   title: {
-    fontSize: 26, // Slightly adjusted size
+    fontSize: 26, 
     fontWeight: "bold",
     color: Colors.primaryText,
-    marginBottom: 20, // Space below title
+    marginBottom: 20,
   },
   listSection: {
-    marginBottom: 20, // Space between sections
+    marginBottom: 20, 
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: Colors.primaryText,
-    marginBottom: 12, // Space below section title
-    paddingHorizontal: 5, // Align with list item padding
+    marginBottom: 12, 
+    paddingHorizontal: 5,
   },
   categoryButton: {
-    backgroundColor: Colors.surface, // Use surface color
+    backgroundColor: Colors.surface,
     paddingVertical: 12,
     paddingHorizontal: 15,
-    marginVertical: 4, // Reduced vertical margin
+    marginVertical: 4,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.border, // Add a subtle border
-    flexDirection: "row", // Prepare for potential icons later
+    borderColor: Colors.border, 
+    flexDirection: "row", 
     justifyContent: "space-between",
     alignItems: "center",
   },
   selectedCategoryButton: {
-    backgroundColor: Colors.primaryLight, // Use light primary for selected background
-    borderColor: Colors.primary, // Use primary color for selected border
+    backgroundColor: Colors.primaryLight, 
+    borderColor: Colors.primary, 
   },
   categoryText: {
-    color: Colors.primaryText, // Use primary text color
+    color: Colors.primaryText,
     fontSize: 16,
-    fontWeight: "500", // Medium weight
+    fontWeight: "500", 
   },
   selectedCategoryText: {
-    color: Colors.primary, // Use primary color for selected text
-    fontWeight: "bold", // Make selected text bold
+    color: Colors.primary, 
+    fontWeight: "bold", 
   },
-  // Transaction List specific container styling (optional card look)
+  
   transactionListContainer: {
-    flex: 1, // Allow this section to take remaining space if needed
+    flex: 1, 
     backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 15,
-    // Add subtle shadow for depth (iOS)
+    
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 3,
-    // Add elevation for depth (Android)
+   
     elevation: 2,
   },
   transactionItem: {
@@ -343,32 +340,32 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 12,
-    paddingHorizontal: 5, // Internal padding within the card
+    paddingHorizontal: 5, 
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border, // Use border color for separator
+    borderBottomColor: Colors.border, 
   },
   transactionDetails: {
-    flex: 1, // Allow description to take available space
+    flex: 1, 
     marginRight: 10,
   },
   transactionDescription: {
     fontSize: 15,
     color: Colors.primaryText,
-    marginBottom: 2, // Small space if date is added below
+    marginBottom: 2, 
   },
-  transactionDate: { // Optional date style
+  transactionDate: {
     fontSize: 12,
     color: Colors.secondaryText,
   },
   transactionAmount: {
     fontSize: 16,
     fontWeight: "bold",
-    color: Colors.primaryText, // Default color, override if using type
+    color: Colors.primaryText, 
   },
-  incomeText: { // Optional: if transaction type is available
+  incomeText: { 
     color: Colors.income,
   },
-  expenseText: { // Optional: if transaction type is available
+  expenseText: { 
     color: Colors.expense,
   },
   emptyListText: {
@@ -382,4 +379,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default CategoriesScreen; // Ensure correct export name
+export default CategoriesScreen; 

@@ -3,11 +3,17 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput, Alert } 
 import { Saving } from "../types/savings";
 import Icon from "react-native-vector-icons/Ionicons";
 
+
+// Define the interface for the props
+// that the SavingsList component will receive
+// This includes the savings data, a function to delete a saving, and a function to update the saving amount
 interface SavingsListProps {
   savings: Saving[];
   onDeleteSaving: (id: number) => void;
   onUpdateSavingAmount: (savingId: number, newAmount: number) => Promise<void>;
 }
+
+// Define the Colors object for consistent styling
 
 const Colors = {
   background: "#f8f9fa",
@@ -26,10 +32,15 @@ const Colors = {
   success: "#28a745",
 };
 
+// Define the SavingsList component
+// This component is responsible for displaying a list of savings goals
+// and allowing the user to update or delete them
+// The component uses React Native's FlatList to render the list of savings
 const SavingsList: React.FC<SavingsListProps> = ({ savings, onDeleteSaving, onUpdateSavingAmount }) => {
-  const [editAmountId, setEditAmountId] = React.useState<number | null>(null);
-  const [editAmountText, setEditAmountText] = React.useState<string>("");
-
+  const [editAmountId, setEditAmountId] = React.useState<number | null>(null); // This state holds the ID of the saving goal being edited
+  // This state holds the text input for the new amount
+  // It is used to update the current amount of the saving goal
+  const [editAmountText, setEditAmountText] = React.useState<string>(""); 
   const handleUpdateAmount = async (id: number, amountText: string) => {
     const newAmount = parseFloat(amountText);
     if (isNaN(newAmount) || newAmount < 0) {

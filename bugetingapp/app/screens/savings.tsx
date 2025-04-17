@@ -17,12 +17,12 @@ import { BASE_URL } from "../src/config";
 
 // Define or import the professional color palette
 const Colors = {
-  background: "#f8f9fa",
-  surface: "#ffffff",
+  background: "#FAFBE5",
+  surface: "#DDEB8E",
   primaryText: "#212529",
   secondaryText: "#6c757d",
   placeholderText: "#adb5bd",
-  primary: "#007bff", // Blue for primary actions
+  primary: "#2E931A", // Blue for primary actions
   success: "#28a745", // Green for success/completion often used in savings
   expense: "#dc3545", // Red for errors
   border: "#dee2e6",

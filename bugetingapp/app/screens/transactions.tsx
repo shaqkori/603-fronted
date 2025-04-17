@@ -18,16 +18,16 @@ import { BASE_URL } from "../src/config";
 
 // --- Re-using the Professional Color Palette ---
 const Colors = {
-  background: "#f8f9fa",
+  background: "#FAFBE5",
   surface: "#ffffff", // Can be used for selected items background
   primaryText: "#212529",
   secondaryText: "#6c757d",
   placeholderText: "#adb5bd",
-  primary: "#007bff", // Standard blue
+  primary: "#2E931A", // Standard blue
   primaryLight: "#e7f3ff",
   income: "#28a745",
   expense: "#dc3545",
-  border: "#dee2e6",
+  border: "#1E1E1E",
   white: "#ffffff",
   disabled: "#ced4da",
 };
@@ -188,15 +188,14 @@ const TransactionsScreen = () => {
 
 
   return (
-    // Wrap with ScrollView ONLY if the form itself might get long or hidden by keyboard
-    // If TransactionList is the main scrollable part, View + flex:1 on list is better
+
      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
         keyboardShouldPersistTaps="handled" // Allows taps on buttons while keyboard is up
      >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        {/* Using a general View container might be unavoidable for padding/background */}
+        
         <View style={styles.container}>
           <Text style={styles.title}>New Transaction</Text>
 
@@ -281,13 +280,11 @@ const TransactionsScreen = () => {
           {loadingTransactions ? (
             <ActivityIndicator size="large" style={styles.loadingIndicator}/>
           ):(
-             // Assuming TransactionList internally handles scrolling (e.g., uses FlatList)
-             // If not, this structure might need adjustment.
+
             <TransactionList
               transactions={transactions}
               onDeleteTransaction={handleDeleteTransaction}
-              // Add a style prop if TransactionList supports it for potential flex:1
-              // style={styles.transactionListStyle}
+
             />
           )}
 
@@ -299,45 +296,45 @@ const TransactionsScreen = () => {
 
 // --- Simplified Styles ---
 const styles = StyleSheet.create({
-  scrollView: { // Style for the ScrollView container
+  scrollView: { 
     flex: 1,
     backgroundColor: Colors.background,
   },
-  scrollViewContent: { // Style for the content within ScrollView
-    flexGrow: 1, // Allows content to grow and enable scrolling
+  scrollViewContent: { 
+    flexGrow: 1,
   },
   container: {
-    flex: 1, // Takes available space within ScrollView
+    flex: 1, 
     padding: 20,
-    backgroundColor: Colors.background, // Apply background here too
+    backgroundColor: Colors.background, 
   },
   title: {
-    fontSize: 24, // Larger title
+    fontSize: 24, 
     fontWeight: "bold",
     color: Colors.primaryText,
-    marginBottom: 20, // More spacing
+    marginBottom: 20, 
   },
   label: {
       fontSize: 14,
       color: Colors.secondaryText,
       fontWeight: '500',
       marginBottom: 5,
-      marginTop: 15, // Space above labels
+      marginTop: 15, 
   },
   input: {
-    // Removed explicit border, using bottom border for cleaner look
+    
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-    paddingVertical: 10, // Vertical padding for height
-    paddingHorizontal: 5, // Small horizontal padding
+    paddingVertical: 10, 
+    paddingHorizontal: 5, 
     fontSize: 16,
     color: Colors.primaryText,
-    marginBottom: 10, // Space below input
-    backgroundColor: 'transparent', // Ensure no unwanted background
+    marginBottom: 10, 
+    backgroundColor: 'transparent', 
   },
   categoryList: {
-    flexGrow: 0, // Prevent horizontal list from taking too much vertical space
-    marginVertical: 5, // Add vertical margin around the list
+    flexGrow: 0, 
+    marginVertical: 5, 
   },
   categoryTile: {
     paddingVertical: 8,
@@ -345,28 +342,28 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 20, // Pill shape
-    backgroundColor: Colors.surface, // White background
+    borderRadius: 20, 
+    backgroundColor: Colors.surface, 
     justifyContent: 'center',
     alignItems: 'center'
   },
   selectedCategoryTile: {
-    backgroundColor: Colors.primaryLight, // Light blue background for selected
-    borderColor: Colors.primary, // Blue border for selected
+    backgroundColor: Colors.primaryLight, 
+    borderColor: Colors.primary, 
   },
   categoryText: {
     fontSize: 14,
     color: Colors.secondaryText,
   },
   selectedCategoryText: {
-    color: Colors.primary, // Blue text for selected
+    color: Colors.primary, 
     fontWeight: '600',
   },
   typeSelector: {
     flexDirection: "row",
-    // Removed justifyContent: space-around for closer buttons
+   
     marginVertical: 10,
-    gap: 15, // Use gap for spacing if RN version supports it, otherwise use margin
+    gap: 15, 
   },
   typeButton: {
     paddingVertical: 10,
@@ -376,11 +373,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: Colors.surface,
   },
-  selectedTypeIncome: { // Specific selected style for income
+  selectedTypeIncome: { 
     backgroundColor: Colors.income,
     borderColor: Colors.income,
   },
-   selectedTypeExpense: { // Specific selected style for expense
+   selectedTypeExpense: {
     backgroundColor: Colors.expense,
     borderColor: Colors.expense,
   },
@@ -390,18 +387,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   selectedTypeText: {
-    color: Colors.white, // White text on colored background
+    color: Colors.white, 
      fontWeight: 'bold',
   },
-  addButton: { // Styles for the replacement TouchableOpacity button
+  addButton: { 
     backgroundColor: Colors.primary,
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20, // Space above button
-    marginBottom: 15, // Space below button
-    minHeight: 45, // Ensure decent button height
+    marginTop: 20, 
+    marginBottom: 15, 
+    minHeight: 45, 
   },
   addButtonDisabled: {
       backgroundColor: Colors.disabled,
@@ -411,18 +408,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  listTitle: { // Title for the transaction history section
+  listTitle: { 
       fontSize: 18,
       fontWeight: '600',
       color: Colors.primaryText,
-      marginTop: 25, // Space above list title
+      marginTop: 25, 
       marginBottom: 10,
-      borderTopWidth: 1, // Optional separator line
+      borderTopWidth: 1, 
       borderTopColor: Colors.border,
-      paddingTop: 15, // Padding above text after line
+      paddingTop: 15, 
   },
    loadingIndicator: {
-      marginVertical: 20, // Spacing for loading indicators
+      marginVertical: 20, 
       alignSelf: 'center',
    },
    emptyText: {
@@ -435,10 +432,7 @@ const styles = StyleSheet.create({
        marginTop: 10,
        marginBottom: 5,
    }
-   // If TransactionList needs explicit styling to take space:
-   // transactionListStyle: {
-   //   flex: 1,
-   // }
+
 });
 
 export default TransactionsScreen;

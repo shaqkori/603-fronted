@@ -9,9 +9,16 @@ import { Ionicons } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();
 
+  {/* Tab.Screen defines a single tab in the tab bar.
+      - 'name' is the title of the tab.
+      - 'component' is the React component (screen) rendered when this tab is active.
+      - 'options' lets you configure settings like whether to show the top header. */}
+
 const BottomNav = () => {
   return (
     <Tab.Navigator
+    // Tab.Navigator is a component from React Navigation that creates a bottom tab navigation bar.
+// It allows users to switch between major sections of the app using tabs at the bottom of the screen.
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap = "home"; // Default value
@@ -32,11 +39,14 @@ const BottomNav = () => {
           // Return the icon with proper size and color
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "blue",
+        tabBarActiveTintColor: "#2E931A",
         tabBarInactiveTintColor: "gray",
       })}
     >
+
       <Tab.Screen
+
+      
         name="Transactions"
         component={TransactionsScreen}
         options={{ headerShown: false }}

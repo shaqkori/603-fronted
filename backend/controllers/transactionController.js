@@ -28,6 +28,33 @@ const getTransactionById = async (req, res) => {
   }
 };
 
+// filters transactions by category
+const getTransactionsByCategory = async (req, res) => {
+  const categoryId = parseInt(req.query.categoryId);
+
+  if (isNaN(categoryId)) {
+    return res.status(400).json({ message: "Invalid category ID" });
+  }
+
+  try {
+    const [rows] = await db.execute(
+      "SELECT * FROM transactions WHERE category_id = ?",
+      [categoryId]
+    );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No transactions found for this category" });
+    }
+
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching transactions by category:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 // Create a new transaction
 const createTransaction = async (req, res) => {
   const { description, amount, date, category_id, type } = req.body;
@@ -44,7 +71,7 @@ const createTransaction = async (req, res) => {
 
   try {
     const [result] = await db.execute(
-      "INSERT INTO transactions (description, amount, date, category_id, type) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO transactions (description, amount, date, category_id, type) VALUES (?, ?, ?, ?, ?)", // inserts into theh transaction table
       [
         description,
         amount,
@@ -83,7 +110,7 @@ const updateTransaction = async (req, res) => {
     }
 
     await db.execute(
-      "UPDATE transactions SET description = ?, amount = ?, date = ?, category_id = ?, type = ? WHERE id = ?",
+      "UPDATE transactions SET description = ?, amount = ?, date = ?, category_id = ?, type = ? WHERE id = ?", // updates the transaction table
       [
         description || result[0].description,
         amount || result[0].amount,
@@ -130,7 +157,9 @@ const deleteTransaction = async (req, res) => {
 module.exports = {
   getTransactions,
   getTransactionById,
+  getTransactionsByCategory,
   createTransaction,
   updateTransaction,
   deleteTransaction,
 };
+// expots the functions to be used in other files

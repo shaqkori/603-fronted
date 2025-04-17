@@ -120,3 +120,6 @@ async function insertCategories(connection) {
 testConnection();
 
 module.exports = pool;
+
+//tables create like this only to showcase the functionality idealy the schema is initiated when the workflow is deployed once rarher than
+// any time  the contain is spin up

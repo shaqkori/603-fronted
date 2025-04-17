@@ -6,32 +6,37 @@ import {
   Dimensions,
   ScrollView,
   ActivityIndicator,
-} from "react-native";
-import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel } from "victory";
+} from "react-native"; 
+import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel } from "victory"; // import VictoryLabel for graph creation 
 import { BASE_URL } from "../src/config";
-import TransactionList from "../components/transactionList";
+import TransactionList from "../components/transactionList"; // import TransactionList component to display transactions
 
 const screenWidth = Dimensions.get("window").width - 40;
 
-interface Transaction {
+
+interface Transaction { // Define the Transaction interface
   id: number;
   description: string;
   amount: number;
   date: string;
   category: string;
-  type: "income" | "expense";
+  type: "income" | "expense";  
 }
 
 const Colors = {
-  background: "#f8f9fa",
-  surface: "#ffffff",
+  background: "#FAFBE5",
+  surface: "#DDEB8E",
   primaryText: "#212529",
   secondaryText: "#6c757d",
   income: "#28a745",
   expense: "#dc3545",
-  chartGrid: "#e9ecef",
+  chartGrid: "#1E1E1E",
   chartLabel: "#495057",
 };
+
+// The useState hook is a built-in React hook used to declare state variables in functional components.
+// It returns a pair: the current state value and a function to update it.
+// This allows the component to "remember" values across re-renders and reactively update the UI when the state changes.
 
 const AnalysisScreen = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -41,7 +46,7 @@ const AnalysisScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [maxValue, setMaxValue] = useState<number>(0);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = async () => { // fetches transactions from the API
     setLoading(true);
     setError(null);
     try {
@@ -60,6 +65,11 @@ const AnalysisScreen = () => {
       setLoading(false);
     }
   };
+
+// useEffect is a React hook that lets you run side effects in function components.
+// The first useEffect runs whenever the transactions array changes.
+// It calculates the total income and expenses based on the filtered transaction types.
+// Then, it updates the income, expenses, and a scaled maxValue for chart visualization.
 
   useEffect(() => {
     const totalIncome = transactions
@@ -109,12 +119,15 @@ const AnalysisScreen = () => {
       {/* Chart Section */}
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Income vs Expenses</Text>
+
+        {/* VictoryChart renders the bar chart comparing income and expenses */}
         <VictoryChart
           width={screenWidth}
           height={chartHeight}
-          domainPadding={{ x: 40 }} // Adjust padding for labels
-          padding={{ top: 20, bottom: 50, left: 50, right: 20 }} // Adjust overall padding
+          domainPadding={{ x: 40 }} 
+          padding={{ top: 20, bottom: 50, left: 50, right: 20 }} 
         >
+          {/* Y-axis (dependent axis) settings */}
           <VictoryAxis
             dependentAxis
             tickFormat={(t: number) => `£${t}`}
@@ -124,8 +137,9 @@ const AnalysisScreen = () => {
               axis: { stroke: Colors.chartGrid, strokeWidth: 0.5 },
               grid: { stroke: Colors.chartGrid, strokeWidth: 0.5 },
             }}
-            axisLabelComponent={<VictoryLabel style={{ ...styles.axisLabel }} dy={-10} />} // Adjust label position
+            axisLabelComponent={<VictoryLabel style={{ ...styles.axisLabel }} dy={-10} />} 
           />
+          {/* X-axis settings */}
           <VictoryAxis
             style={{
               axisLabel: { fontSize: 12, padding: 20, fill: Colors.primaryText },
@@ -133,6 +147,8 @@ const AnalysisScreen = () => {
               axis: { stroke: Colors.chartGrid, strokeWidth: 0.5 },
             }}
           />
+
+          {/* Bar data using VictoryBar */}
           <VictoryBar
             data={chartData}
             x="x"
