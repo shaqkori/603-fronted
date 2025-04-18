@@ -23,7 +23,7 @@ const BottomNav = () => {
         tabBarIcon: ({ color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap = "home"; // Default value
 
-          // Make sure route names here match Tab.Screen names
+          
           if (route.name === "Transactions") {
             iconName = "list";
           } else if (route.name === "Analysis") {
@@ -36,11 +36,10 @@ const BottomNav = () => {
             iconName = "home";
           }
 
-          // Return the icon with proper size and color
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: "#2E931A",
-        tabBarInactiveTintColor: "gray",
+        tabBarInactiveTintColor: "#DDEB8E",
       })}
     >
 
