@@ -45,6 +45,8 @@ processes business logic
 
 fetchs and processes and returns data 
 
+docker build --platform=linux/amd64 -t <image:tag>
+
 
 
 user logs in -> credntials sent to cognito -> authentcates then sends token ->  validates token -> then returns request -> executes backend logic -> returns json 
@@ -176,4 +178,17 @@ const createTransaction = async (req, res) => {
     console.error("Error creating transaction in the database:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+};
+
+const Colors = {
+  background: "#FAFBE5", // Very light grey background
+  surface: "#DDEB8E", // White for card backgrounds
+  primaryText: "#212529", // Dark grey/black for main text
+  secondaryText: "#6c757d", // Medium grey for subtitles/labels
+  primary: "#2E931A", // A standard primary blue for selection/actions
+  primaryLight: "#e7f3ff", // Light blue for subtle backgrounds or borders
+  income: "#28a745", // Green for income (if needed)
+  expense: "#dc3545", // Red for expenses (used for error text)
+  border: "#191A04", // Light grey for borders/dividers
+  white: "#ffffff",
 };

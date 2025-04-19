@@ -1,4 +1,4 @@
-const db = require("../config/db"); // Import your MySQL connection
+const db = require("../config/db");
 
 // Get all transactions
 const getTransactions = async (req, res) => {
@@ -33,19 +33,20 @@ const getTransactionsByCategory = async (req, res) => {
   const categoryId = parseInt(req.query.categoryId);
 
   if (isNaN(categoryId)) {
+    // checks if the category ID is a number
     return res.status(400).json({ message: "Invalid category ID" });
   }
 
   try {
     const [rows] = await db.execute(
-      "SELECT * FROM transactions WHERE category_id = ?",
+      "SELECT * FROM transactions WHERE category_id = ?", // selects all transactions from the transaction table where the category ID matches the one provided
       [categoryId]
     );
 
     if (rows.length === 0) {
       return res
         .status(404)
-        .json({ message: "No transactions found for this category" });
+        .json({ message: "No transactions found for this category" }); // checks if there are any transactions for the category ID provided
     }
 
     res.json(rows);
@@ -57,16 +58,16 @@ const getTransactionsByCategory = async (req, res) => {
 
 // Create a new transaction
 const createTransaction = async (req, res) => {
-  const { description, amount, date, category_id, type } = req.body;
+  const { description, amount, date, category_id, type } = req.body; // gets the data from the request body
 
   if (!description || !amount || !category_id || !type) {
-    return res.status(400).json({ message: "Missing required fields" });
+    return res.status(400).json({ message: "Missing required fields" }); // checks if all required fields are present
   }
 
   if (type !== "income" && type !== "expense") {
     return res
       .status(400)
-      .json({ message: "Invalid type. Must be 'income' or 'expense'" });
+      .json({ message: "Invalid type. Must be 'income' or 'expense'" }); // checks if the type is either income or expense
   }
 
   try {
@@ -82,6 +83,7 @@ const createTransaction = async (req, res) => {
     );
 
     res.status(201).json({
+      // sends a 201 status code to indicate that the transaction was created successfully
       id: result.insertId,
       description,
       amount,
@@ -98,11 +100,11 @@ const createTransaction = async (req, res) => {
 // Update a transaction
 const updateTransaction = async (req, res) => {
   const transactionId = parseInt(req.params.id);
-  const { description, amount, date, category_id, type } = req.body;
+  const { description, amount, date, category_id, type } = req.body; // gets the data from the request body
 
   try {
     const [result] = await db.execute(
-      "SELECT * FROM transactions WHERE id = ?",
+      "SELECT * FROM transactions WHERE id = ?", // selects the transaction by ID
       [transactionId]
     );
     if (result.length === 0) {
@@ -112,6 +114,7 @@ const updateTransaction = async (req, res) => {
     await db.execute(
       "UPDATE transactions SET description = ?, amount = ?, date = ?, category_id = ?, type = ? WHERE id = ?", // updates the transaction table
       [
+        // sets the values to be updated
         description || result[0].description,
         amount || result[0].amount,
         date || result[0].date,

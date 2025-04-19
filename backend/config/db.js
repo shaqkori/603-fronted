@@ -61,6 +61,8 @@ async function createTables(connection) {
         amount DECIMAL(10,2) NOT NULL,
         category_id INT,
         description TEXT,
+        date DATE NOT NULL,
+        type ENUM('income', 'expense') NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
@@ -74,9 +76,10 @@ async function createTables(connection) {
       CREATE TABLE IF NOT EXISTS savings (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id VARCHAR(255) NOT NULL,
-        goal_name VARCHAR(255) NOT NULL,
-        target_amount DECIMAL(10,2) NOT NULL,
-        current_amount DECIMAL(10,2) DEFAULT 0,
+        name VARCHAR(255) NOT NULL,
+        targetAmount DECIMAL(10,2) NOT NULL,
+        currentAmount DECIMAL(10,2) DEFAULT 0,
+        dateCreated DATE NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
         INDEX (user_id)

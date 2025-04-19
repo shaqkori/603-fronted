@@ -9,20 +9,20 @@ import {
   Alert,
   Keyboard,
   TouchableWithoutFeedback,
-  // Assuming SavingsList might be a FlatList or similar, adjust if needed
+  
 } from "react-native";
-import { Saving } from "../types/savings"; // Make sure this path and type are correct
-import SavingsList from "../components/savingsList"; // Import your styled SavingsList
+import { Saving } from "../types/savings"; 
+import SavingsList from "../components/savingsList"; 
 import { BASE_URL } from "../src/config";
 
-// Define or import the professional color palette
+
 const Colors = {
   background: "#FAFBE5",
   surface: "#DDEB8E",
   primaryText: "#212529",
   secondaryText: "#6c757d",
   placeholderText: "#adb5bd",
-  primary: "#2E931A", // Blue for primary actions
+  primary: "#2E931A", 
   success: "#28a745", // Green for success/completion often used in savings
   expense: "#dc3545", // Red for errors
   border: "#dee2e6",
@@ -52,7 +52,7 @@ const SavingsScreen = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: Saving[] = await response.json();
-      // Optional: Sort savings goals (e.g., by date created)
+      
       data.sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
       setSavings(data);
     } catch (err) {
@@ -85,8 +85,8 @@ const SavingsScreen = () => {
     const newSaving = {
       name: trimmedName,
       targetAmount: numericTargetAmount,
-      currentAmount: 0, // Assuming new goals start at 0
-      dateCreated: new Date().toISOString(), // Send full ISO string
+      currentAmount: 0, 
+      dateCreated: new Date().toISOString(), 
     };
 
     try {
@@ -117,7 +117,7 @@ const SavingsScreen = () => {
 
   const handleDeleteSaving = async (id: number) => {
     try {
-      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" }); // send delete request to the api endpoint by selecting the id of the savings
       if (response.ok) fetchSavings();
     } catch (error) {
       console.error("Error deleting saving:", error);
@@ -126,7 +126,7 @@ const SavingsScreen = () => {
 
   const handleUpdateSavingAmount = async (savingId: number, newAmount: number) => {
     try {
-      const response = await fetch(`${API_URL}/${savingId}`, {
+      const response = await fetch(`${API_URL}/${savingId}`, { //handles the update request
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentAmount: newAmount }), // Send the new currentAmount
@@ -209,10 +209,7 @@ const SavingsScreen = () => {
               onUpdateSavingAmount={handleUpdateSavingAmount}
               
             />
-            // Add ListEmptyComponent message directly here if SavingsList doesn't handle it
-             // {savings.length === 0 && !loadingSavings && !error && (
-             //   <Text style={styles.emptyListText}>You haven't added any savings goals yet.</Text>
-             // )}
+
           )}
         </View>
 
@@ -229,7 +226,7 @@ const styles = StyleSheet.create({
   // --- Form Styles ---
   formContainer: {
     backgroundColor: Colors.surface,
-    paddingHorizontal: 20, // More padding for form
+    paddingHorizontal: 20, 
     paddingVertical: 20,
     margin: 15,
     borderRadius: 12,
@@ -265,11 +262,11 @@ const styles = StyleSheet.create({
   },
   // --- Add Button Styles ---
   addButton: {
-    backgroundColor: Colors.primary, // Use primary color for add button
+    backgroundColor: Colors.primary, 
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20, // More space above button
+    marginTop: 20, 
     marginBottom: 5,
   },
   addButtonDisabled: {
@@ -282,34 +279,34 @@ const styles = StyleSheet.create({
   },
   // --- List Styles ---
   listContainer: {
-    flex: 1, // Make list take remaining space
+    flex: 1, 
     paddingHorizontal: 15,
     marginTop: 5,
     marginBottom: 10,
   },
   listLoadingIndicator: {
-    marginTop: 30, // Give space from title
+    marginTop: 30,
     alignSelf: 'center',
   },
-  emptyListText: { // Style for empty list message if SavingsList doesn't provide one
+  emptyListText: { 
       textAlign: 'center',
       marginTop: 20,
       fontSize: 15,
       color: Colors.secondaryText,
   },
   // --- Error Text Styles ---
-   errorTextForm: { // Error text specific to the form area
+   errorTextForm: { 
     fontSize: 14,
     color: Colors.expense,
     marginTop: 10,
     textAlign: 'center',
   },
-   errorTextList: { // Error text specific to the list area (e.g., fetch error)
+   errorTextList: { 
     fontSize: 14,
     color: Colors.expense,
     marginTop: 20,
     textAlign: 'center',
-    paddingHorizontal: 10, // Keep it constrained
+    paddingHorizontal: 10, 
   },
 });
 
