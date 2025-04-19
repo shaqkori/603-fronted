@@ -58,7 +58,7 @@ const CategoriesScreen = () => {
     setLoadingCategories(true);
     setErrorCategories(null);
     try {
-      const response = await fetch(`${BASE_URL}/categories`);
+      const response = await fetch(`${BASE_URL}/categories`); // Fetch categories from the backend
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -83,7 +83,7 @@ const CategoriesScreen = () => {
     try {
 
       const response = await fetch(
-        `${BASE_URL}/transactions?categoryId=${categoryId}`
+        `${BASE_URL}/transactions?categoryId=${categoryId}` // Fetch transactions for the selected category
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -100,12 +100,12 @@ const CategoriesScreen = () => {
     }
   };
 
-  const handleCategoryPress = (category: Category) => {
+  const handleCategoryPress = (category: Category) => { //function to handle category selection
     setSelectedCategory(category); // Set selected category immediately for UI feedback
     fetchTransactionsByCategory(category.id); // Fetch transactions for the selected category
   };
 
-  useEffect(() => {
+  useEffect(() => { // useEffect to fetch categories when the component mounts
     fetchCategories(); 
   }, []);
 
