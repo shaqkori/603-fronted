@@ -3,27 +3,27 @@ import {
   View,
   Text,
   FlatList,
-  TextInput, // Keep TextInput
+  TextInput, 
   StyleSheet,
-  TouchableOpacity, // Use TouchableOpacity for buttons
-  ActivityIndicator, // Add for loading state feedback
-  Alert, // For validation feedback
+  TouchableOpacity, 
+  ActivityIndicator, 
+  Alert, 
   Keyboard,
   TouchableWithoutFeedback,
-  ScrollView, // Added to ensure form doesn't get hidden by keyboard
+  ScrollView, 
 } from "react-native";
 import { Transaction } from "../types/transactions";
-import TransactionList from "../components/transactionList"; // Assuming this is styled
+import TransactionList from "../components/transactionList"; 
 import { BASE_URL } from "../src/config";
 
-// --- Re-using the Professional Color Palette ---
+
 const Colors = {
   background: "#FAFBE5",
-  surface: "#ffffff", // Can be used for selected items background
+  surface: "#ffffff", 
   primaryText: "#212529",
   secondaryText: "#6c757d",
   placeholderText: "#adb5bd",
-  primary: "#2E931A", // Standard blue
+  primary: "#2E931A", 
   primaryLight: "#e7f3ff",
   income: "#28a745",
   expense: "#dc3545",
@@ -32,40 +32,40 @@ const Colors = {
   disabled: "#ced4da",
 };
 
-const API_URL = `${BASE_URL}/transactions`;
+const API_URL = `${BASE_URL}/transactions`; // defines the base url for the api 
 const CATEGORIES_URL = `${BASE_URL}/categories`;
 
-// Simple Category Type (ensure it matches your actual type)
+
 interface Category {
   id: number;
   name: string;
 }
 
 const TransactionsScreen = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [type, setType] = useState<"income" | "expense">("expense");
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]); // State to store all transactions
+  const [description, setDescription] = useState(""); // State to store the input value for transaction description
+  const [amount, setAmount] = useState(""); // State to store the input value for transaction amount
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null); // State to track the currently selected category from dropdown or picker
+  const [type, setType] = useState<"income" | "expense">("expense"); // State to track whether the transaction is an income or expense (default is expense)
+  const [categories, setCategories] = useState<Category[]>([]);   // State to store the list of categories fetched from the backend
 
   // --- State for Loading/Errors ---
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [loadingTransactions, setLoadingTransactions] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
+  const [loadingCategories, setLoadingCategories] = useState(true);  // State to track if categories are still being loaded
+  const [loadingTransactions, setLoadingTransactions] = useState(true); // State to track if transactions are being loaded
+  const [isSubmitting, setIsSubmitting] = useState(false);  // State to show a loading indicator while a new transaction is being submitted
+  const [error, setError] = useState<string | null>(null);   // State to capture and display any errors that occur (e.g., during API calls)
+ 
   // --- Fetching Functions ---
   const fetchCategories = async () => {
     setLoadingCategories(true);
     try {
-      const response = await fetch(CATEGORIES_URL);
+      const response = await fetch(CATEGORIES_URL); //fetchs the categories from the backend
       if (!response.ok) throw new Error("Failed to fetch categories");
-      const data: Category[] = await response.json();
-      setCategories(data);
+      const data: Category[] = await response.json(); // Parse the response as JSON and assume it matches the Category[] type
+      setCategories(data); // Store the fetched categories in state
       setError(null);
     } catch (err) {
-      console.error("Error fetching categories:", err);
+      console.error("Error fetching categories:", err); // Log the error and update the error state
       setError(err instanceof Error ? err.message : "Could not load categories.");
     } finally {
       setLoadingCategories(false);
@@ -79,7 +79,7 @@ const TransactionsScreen = () => {
       if (!response.ok) throw new Error("Failed to fetch transactions");
       const data: Transaction[] = await response.json();
       // Sort by date descending
-      data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Sort transactions by date in descending order (most recent first)
       setTransactions(data);
       setError(null);
     } catch (err) {
@@ -92,18 +92,18 @@ const TransactionsScreen = () => {
 
   // --- Action Handlers ---
   const handleAddTransaction = async () => {
-    // Basic Validation
+  
     if (!description.trim()) {
-      Alert.alert("Input Required", "Please enter a description.");
+      Alert.alert("Input Required", "Please enter a description."); // Check if the description is empty or only whitespace
       return;
     }
     if (!selectedCategory) {
-      Alert.alert("Input Required", "Please select a category.");
+      Alert.alert("Input Required", "Please select a category."); // Ensure a category has been selected
       return;
     }
-    const numericAmount = parseFloat(amount);
+    const numericAmount = parseFloat(amount);  // Convert the amount from string to number
     if (isNaN(numericAmount) || numericAmount <= 0) {
-       Alert.alert("Input Required", "Please enter a valid positive amount.");
+       Alert.alert("Input Required", "Please enter a valid positive amount."); // Validate that the amount is a valid number and greater than zero
       return;
     }
 
@@ -124,9 +124,9 @@ const TransactionsScreen = () => {
 
     try {
       const response = await fetch(API_URL, {
-        method: "POST",
+        method: "POST", // sends a POST request to the API
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newTransaction),
+        body: JSON.stringify(newTransaction), // Convert the new transaction object to a JSON string
       });
 
       if (!response.ok) {
@@ -159,7 +159,7 @@ const TransactionsScreen = () => {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // Fetch categories and transactions when the component mounts
     fetchCategories();
     fetchTransactions();
   }, []);

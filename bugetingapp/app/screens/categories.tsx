@@ -112,7 +112,7 @@ const CategoriesScreen = () => {
   // --- Render Helper Functions ---
 
   const renderCategoryItem = ({ item }: { item: Category }) => {
-    const isSelected = selectedCategory?.id === item.id;
+    const isSelected = selectedCategory?.id === item.id; // Check if the category is selected
     return (
       <TouchableOpacity
         style={[
@@ -182,12 +182,12 @@ const CategoriesScreen = () => {
       <View style={styles.listSection}>
     
         <FlatList
-          data={categories}
-          renderItem={renderCategoryItem}
-          keyExtractor={(item) => item.id.toString()}
+          data={categories} // renders the list of categories
+          renderItem={renderCategoryItem} // renders each category
+          keyExtractor={(item) => item.id.toString()} // unique key for each item
           horizontal={false} 
           showsVerticalScrollIndicator={false}
-          ListEmptyComponent={<Text style={styles.emptyListText}>No categories found.</Text>}
+          ListEmptyComponent={<Text style={styles.emptyListText}>No categories found.</Text>} //redners when no categories are available
         />
       </View>
 
@@ -200,10 +200,10 @@ const CategoriesScreen = () => {
 
           {loadingTransactions ? (
             <ActivityIndicator style={styles.listLoadingIndicator} size="small" color={Colors.primary} />
-          ) : errorTransactions ? (
+          ) : errorTransactions ? ( //loading state for transactions
              <View style={styles.centeredError}>
                 <Text style={styles.errorTextSmall}>Error: {errorTransactions}</Text>
-                <TouchableOpacity onPress={() => fetchTransactionsByCategory(selectedCategory.id)} style={styles.retryButtonSmall}>
+                <TouchableOpacity onPress={() => fetchTransactionsByCategory(selectedCategory.id)} style={styles.retryButtonSmall}> // retry button
                     <Text style={styles.retryButtonTextSmall}>Retry</Text>
                 </TouchableOpacity>
              </View>
